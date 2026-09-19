@@ -1,0 +1,29 @@
+{
+  "name": "social-service",
+  "version": "1.0.0",
+  "description": "Social microservice (follows and notifications) for photo social network",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "axios": "^1.6.2",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^5.1.6",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.4",
+    "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/node": "^20.4.2",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
