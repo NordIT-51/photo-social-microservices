@@ -1,0 +1,50 @@
+name: Deploy to self-hosted runner
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # позволяет запускать вручную из UI
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show context
+        run: |
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      - name: Sync code into ~/services
+        run: |
+          # Копируем свежий код в рабочую папку ~/services,
+          # сохраняя .env (он в .gitignore и не должен затираться)
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='*.sqlite' \
+            --exclude='.env' \
+            --exclude='temp-uploads' \
+            $GITHUB_WORKSPACE/ ~/services/
+
+      - name: Rebuild and restart containers
+        run: |
+          cd ~/services
+          docker compose down
+          docker compose up -d --build
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -fsS http://localhost/ || (echo "Nginx check failed" && exit 1)
+          curl -fsS http://localhost/api/auth/ || (echo "Auth check failed" && exit 1)
+
+      - name: Show running containers
+        if: always()
+        run: docker compose ps
